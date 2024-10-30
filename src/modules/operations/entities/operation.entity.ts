@@ -10,4 +10,6 @@ export class Operation {
 	email: string;
 	@Column()
 	result: number;
+	@Column()
+	timestamp: Date;
 }
