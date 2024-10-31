@@ -3,14 +3,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from '../orm-config';
+import { OperationsModule } from './modules/operations/operations.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forRootAsync({
-      useFactory: async () => typeOrmConfig,
-    }),
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [TypeOrmModule.forRoot(typeOrmConfig), OperationsModule],
 })
 export class AppModule {}
