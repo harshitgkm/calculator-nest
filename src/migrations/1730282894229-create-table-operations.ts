@@ -6,7 +6,13 @@ export class CreateTableOperations1730282894229 implements MigrationInterface {
       new Table({
         name: 'operations',
         columns: [
-          { name: 'id', type: 'int', isPrimary: true },
+          {
+            name: 'id',
+            type: 'int',
+            isPrimary: true,
+            isGenerated: true,
+            generationStrategy: 'increment',
+          },
           { name: 'operations', type: 'varchar' },
           { name: 'email', type: 'varchar' },
           { name: 'result', type: 'int' },
