@@ -1,34 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { OperationsService } from './operations.service';
 import { CreateOperationDto } from './dto/create-operation.dto';
-import { UpdateOperationDto } from './dto/update-operation.dto';
 
 @Controller('operations')
 export class OperationsController {
   constructor(private readonly operationsService: OperationsService) {}
 
   @Post()
-  create(@Body() createOperationDto: CreateOperationDto) {
-    return this.operationsService.create(createOperationDto);
+  async operation(@Body() createOperationDto: CreateOperationDto) {
+    // console.log('hello');
+    return this.operationsService.calculate(createOperationDto);
   }
 
   @Get()
-  findAll() {
-    return this.operationsService.findAll();
+  async getHistory(@Body('email') email: string) {
+    // console.log('aervwr');
+
+    return this.operationsService.getHistory(email);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.operationsService.findOne(+id);
+  // clear all calculation history
+  @Delete('clear')
+  async clearHistory() {
+    return this.operationsService.clearHistory();
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOperationDto: UpdateOperationDto) {
-    return this.operationsService.update(+id, updateOperationDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.operationsService.remove(+id);
+  // reset calculation history for a specific email
+  @Delete('reset')
+  async resetHistory(@Body('email') email: string) {
+    return this.operationsService.resetHistory(email);
   }
 }
