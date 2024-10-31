@@ -1,26 +1,70 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Operation } from './entities/operation.entity';
 import { CreateOperationDto } from './dto/create-operation.dto';
-import { UpdateOperationDto } from './dto/update-operation.dto';
 
 @Injectable()
 export class OperationsService {
-  create(createOperationDto: CreateOperationDto) {
-    return 'This action adds a new operation';
+  constructor(
+    @InjectRepository(Operation)
+    private readonly operationRepository: Repository<Operation>,
+  ) {}
+
+  async calculate(createOperationDto: CreateOperationDto) {
+    const { a, b, operations, email } = createOperationDto;
+
+    let result;
+
+    switch (operations) {
+      case '+':
+        result = a + b;
+        break;
+      case '-':
+        result = a - b;
+        break;
+      case '*':
+        result = a * b;
+        break;
+      case '/':
+        if (b === 0) throw new BadRequestException('Cannot divide by zero');
+        result = a / b;
+        break;
+      default:
+        throw new BadRequestException('Invalid operation');
+    }
+
+    const calculation = this.operationRepository.create({
+      email,
+      operations: `${a} ${operations} ${b}`,
+      result,
+    });
+
+    await this.operationRepository.save(calculation);
+    return { result, email };
   }
 
-  findAll() {
-    return `This action returns all operations`;
+  async getHistory(email: string): Promise<Operation[]> {
+    return await this.operationRepository.find({
+      where: { email },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} operation`;
+  // async getHistory(historyDto: HistoryDto) {
+  //   const { email } = historyDto;
+  //   return await this.calculationRepository.find({
+  //     where: { email },
+  //     order: { timestamp: 'DESC' },
+  //   });
+  // }
+
+  async clearHistory() {
+    await this.operationRepository.clear();
+    return { message: 'Calculation history cleared' };
   }
 
-  update(id: number, updateOperationDto: UpdateOperationDto) {
-    return `This action updates a #${id} operation`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} operation`;
+  async resetHistory(email: string) {
+    await this.operationRepository.delete({ email });
+    return { message: `History for ${email} reset` };
   }
 }
